@@ -13,4 +13,4 @@ GEMINI_URL = (
 # MINIMAX
 MINIMAX_API_KEY = os.getenv("MINIMAX_API_KEY")
 MINIMAX_URL = "https://ollama.com/api/chat"
-MINIMAX_MODEL = "minimax-m2:cloud"
+MINIMAX_MODEL = "kimi-k2-thinking:cloud"

@@ -14,7 +14,7 @@ def extract_math_from_image(image_path: str) -> str:
 				"parts": [
 					{
 						"text": (
-							"Extract the math problem from this image as plain text. "
+							"Extract the whole text from this image as plain text."
 							"Do NOT solve it. Return only the problem."
 						)
 					},
