@@ -1,6 +1,7 @@
 import requests
 from src.vision_extract import extract_math_from_image
 from src.config import MINIMAX_API_KEY, MINIMAX_URL, MINIMAX_MODEL
+from src.prompts import prompt_for_kimi
 
 
 
@@ -11,7 +12,7 @@ def solve_math_text(problem: str) -> str:
 		"messages": [
 			{
 				"role": "system",
-				"content": "You are a math tutor. Solve step by step clearly."
+				"content": prompt_for_kimi
 			},
 			{
 				"role": "user",
