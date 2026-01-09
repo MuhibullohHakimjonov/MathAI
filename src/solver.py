@@ -33,6 +33,7 @@ def solve_math_text(problem: str) -> str:
 		headers=headers,
 		timeout=120
 	)
+	print(f'Response from Kimi: {response.text}')
 	response.raise_for_status()
 
 	return response.json()["message"]["content"]
