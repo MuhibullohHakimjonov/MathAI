@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 import shutil
-from solver import solve_math
+from src.solver import solve_math
 
 app = FastAPI()
 

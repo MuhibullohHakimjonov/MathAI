@@ -1,7 +1,7 @@
 import requests
-from vision_extract import extract_math_from_image
-from config import MINIMAX_API_KEY, MINIMAX_URL, MINIMAX_MODEL
-from prompts import prompt_for_kimi
+from src.vision_extract import extract_math_from_image
+from src.config import MINIMAX_API_KEY, MINIMAX_URL, MINIMAX_MODEL
+from src.prompts import prompt_for_kimi
 
 
 
