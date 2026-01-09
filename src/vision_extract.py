@@ -28,13 +28,15 @@ def extract_math_from_image(image_path: str) -> str:
 			}
 		]
 	}
+	try:
+		response = requests.post(
+			f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+			json=payload,
+			timeout=120
+		)
+		print(f'Response from gemini: {response.text}')
+		response.raise_for_status()
 
-	response = requests.post(
-		f"{GEMINI_URL}?key={GEMINI_API_KEY}",
-		json=payload,
-		timeout=120
-	)
-	print(f'Response from gemini: {response.text}')
-	response.raise_for_status()
-
-	return response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+		return response.json()["candidates"][0]["content"]["parts"][0]["text"].strip(), 200
+	except Exception as e:
+		print(e)

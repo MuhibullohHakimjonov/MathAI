@@ -6,7 +6,7 @@ from src.prompts import prompt_for_kimi
 
 
 
-def solve_math_text(problem: str) -> str:
+def send_request_to_kimi(problem: str) -> str:
 	payload = {
 		"model": MINIMAX_MODEL,
 		"messages": [
@@ -16,7 +16,7 @@ def solve_math_text(problem: str) -> str:
 			},
 			{
 				"role": "user",
-				"content": problem
+				"content": str(problem)
 			}
 		],
 		"stream": False
@@ -26,25 +26,38 @@ def solve_math_text(problem: str) -> str:
 		"Authorization": f"Bearer {MINIMAX_API_KEY}",
 		"Content-Type": "application/json"
 	}
+	try:
+		response = requests.post(
+			MINIMAX_URL,
+			json=payload,
+			headers=headers,
+			timeout=120
+		)
+		print(f'Response from Kimi: {response.text}')
+		response.raise_for_status()
 
-	response = requests.post(
-		MINIMAX_URL,
-		json=payload,
-		headers=headers,
-		timeout=120
-	)
-	print(f'Response from Kimi: {response.text}')
-	response.raise_for_status()
-
-	return response.json()["message"]["content"]
+		return response.json()["message"]["content"]
+	except Exception as e:
+		print(e)
 
 
 def solve_math(task_text: str = None, image_path: str = None) -> str:
+	extracted_text = None
 	if image_path:
-		task_text = extract_math_from_image(image_path)
-		print(f'Text task {task_text}')
+		extracted_text = extract_math_from_image(image_path)
+		print(f'Extracted text from image: {extracted_text}')
 
-	if not task_text:
-		return "No math problem provided"
+	if extracted_text and task_text:
+		combined_problem = f"Image content: {extracted_text}\n\nText content: {task_text}"
 
-	return solve_math_text(task_text)
+	elif extracted_text:
+		combined_problem = extracted_text
+
+	elif task_text:
+		combined_problem = task_text
+	else:
+		return "No problem to solve"
+
+	print(f'Request to kimi: {combined_problem}')
+
+	return send_request_to_kimi(combined_problem)
