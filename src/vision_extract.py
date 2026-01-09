@@ -1,7 +1,7 @@
 import base64
 
 import requests
-from src.config import GEMINI_API_KEY, GEMINI_URL
+from config import GEMINI_API_KEY, GEMINI_URL
 
 
 def extract_math_from_image(image_path: str) -> str:
