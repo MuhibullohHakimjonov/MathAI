@@ -4,6 +4,26 @@ from src.config import MINIMAX_API_KEY, MINIMAX_URL, MINIMAX_MODEL
 from src.prompts import prompt_for_kimi
 
 
+def solve_math(task_text: str = None, image_path: str = None) -> str:
+	extracted_text = None
+	if image_path:
+		extracted_text = extract_math_from_image(image_path)
+		print(f'Extracted text from image: {extracted_text}')
+
+	if extracted_text and task_text:
+		combined_problem = f"Image Base64-encoded text: {extracted_text}\n\nUser prompt: {task_text}"
+
+	elif extracted_text:
+		combined_problem = extracted_text
+
+	elif task_text:
+		combined_problem = task_text
+	else:
+		return "No problem to solve"
+
+	print(f'Request to kimi: {combined_problem}')
+
+	return send_request_to_kimi(combined_problem)
 
 
 def send_request_to_kimi(problem: str) -> str:
@@ -39,25 +59,3 @@ def send_request_to_kimi(problem: str) -> str:
 		return response.json()["message"]["content"]
 	except Exception as e:
 		print(e)
-
-
-def solve_math(task_text: str = None, image_path: str = None) -> str:
-	extracted_text = None
-	if image_path:
-		extracted_text = extract_math_from_image(image_path)
-		print(f'Extracted text from image: {extracted_text}')
-
-	if extracted_text and task_text:
-		combined_problem = f"Image content: {extracted_text}\n\nText content: {task_text}"
-
-	elif extracted_text:
-		combined_problem = extracted_text
-
-	elif task_text:
-		combined_problem = task_text
-	else:
-		return "No problem to solve"
-
-	print(f'Request to kimi: {combined_problem}')
-
-	return send_request_to_kimi(combined_problem)
