@@ -1,7 +1,7 @@
 import requests
-from src.vision_extract import extract_math_from_image
-from src.config import MINIMAX_API_KEY, MINIMAX_URL, MINIMAX_MODEL
-from src.prompts import prompt_for_kimi
+from vision_extract import extract_math_from_image
+from config import OLLAMA_API_KEY, OLLAMA_URL, OLLAMA_MODEL
+from prompts import prompt_for_kimi
 
 
 def solve_math(task_text: str = None, image_path: str = None) -> str:
@@ -28,7 +28,7 @@ def solve_math(task_text: str = None, image_path: str = None) -> str:
 
 def send_request_to_kimi(problem: str) -> str:
 	payload = {
-		"model": MINIMAX_MODEL,
+		"model": OLLAMA_MODEL,
 		"messages": [
 			{
 				"role": "system",
@@ -43,12 +43,12 @@ def send_request_to_kimi(problem: str) -> str:
 	}
 
 	headers = {
-		"Authorization": f"Bearer {MINIMAX_API_KEY}",
+		"Authorization": f"Bearer {OLLAMA_API_KEY}",
 		"Content-Type": "application/json"
 	}
 	try:
 		response = requests.post(
-			MINIMAX_URL,
+			OLLAMA_URL,
 			json=payload,
 			headers=headers,
 			timeout=120

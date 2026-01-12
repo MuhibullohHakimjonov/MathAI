@@ -5,7 +5,6 @@ load_dotenv()
 
 
 
-# MINIMAX
-MINIMAX_API_KEY = os.getenv("MINIMAX_API_KEY")
-MINIMAX_URL = "https://ollama.com/api/chat"
-MINIMAX_MODEL = "gemini-3-flash-preview:cloud"
+OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY")
+OLLAMA_URL = "https://ollama.com/api/chat"
+OLLAMA_MODEL = "kimi-k2-thinking:cloud"
