@@ -205,9 +205,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-.idea
+.idea/
 __pycache__
 .script
 package.zip
 package
-requirements-lambda.txt
+package/

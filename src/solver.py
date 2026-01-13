@@ -11,7 +11,7 @@ def solve_math(task_text: str = None, image_path: str = None) -> str:
 		print(f'Extracted text from image: {extracted_text}')
 
 	if extracted_text and task_text:
-		combined_problem = f"Image Base64-encoded text: {extracted_text}\n\nUser prompt: {task_text}"
+		combined_problem = f"Image text: {extracted_text}\n\nUser prompt: {task_text}"
 
 	elif extracted_text:
 		combined_problem = extracted_text
