@@ -1,5 +1,5 @@
 import requests
-from vision_extract import extract_math_from_image
+from utils.vision_extract import extract_math_from_image
 from config import OLLAMA_API_KEY, OLLAMA_URL, OLLAMA_MODEL
 from prompts import prompt_for_kimi
 

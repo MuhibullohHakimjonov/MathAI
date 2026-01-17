@@ -8,6 +8,13 @@ def extract_math_from_image(image_path: str) -> str:
 	with open(image_path, "rb") as f:
 		image_base64 = base64.b64encode(f.read()).decode()
 
+	print(f'image bytes: {image_base64}')
+
+	headers = {
+		"Content-Type": "application/json",
+		"x-goog-api-key": GEMINI_API_KEY
+	}
+
 	payload = {
 		"contents": [
 			{
@@ -30,7 +37,8 @@ def extract_math_from_image(image_path: str) -> str:
 	}
 
 	response = requests.post(
-		f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+		f"{GEMINI_URL}",
+		headers=headers,
 		json=payload,
 		timeout=120
 	)

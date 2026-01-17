@@ -3,27 +3,40 @@ import tempfile
 from typing import Optional
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, UploadFile, Form, File
+from fastapi import APIRouter, HTTPException, UploadFile, Form, File, Request
 
 from model import SolutionResponse
-from solver import solve_math
+from utils.solver import solve_math
+from db.supabase import check_rate_limit, insert_check_logs
+from utils.get_ip import get_client_ip_from_lambda
 
 router = APIRouter(
-    prefix="/solve",
-    tags=["solve"],
-    responses={404: {"description": "Not found"}},
+	prefix="/solve",
+	tags=["solve"],
+	responses={404: {"description": "Not found"}},
 )
 
 
-
-
 @router.post("", response_model=SolutionResponse)
-async def solve(file: Optional[UploadFile] = File(None), task: Optional[str] = Form(None)):
+async def solve(request: Request, file: Optional[UploadFile] = File(None), task: Optional[str] = Form(None)):
+	ip = get_client_ip_from_lambda(request)
+	print(f'user ip: {ip}')
+	is_allowed = check_rate_limit(ip)
+	if is_allowed != True:
+		raise HTTPException(
+			status_code=400,
+			detail=f"Rate limit exceeded: {is_allowed}"
+		)
+
+	insert_user_request = insert_check_logs(ip)
+	print(insert_user_request)
+
 	if not file and not task:
 		raise HTTPException(
 			status_code=400,
 			detail="Please provide either a file or a text task"
 		)
+
 	try:
 		temp_file_path = None
 
