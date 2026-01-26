@@ -1,26 +1,23 @@
-import os
-import tempfile
+from fastapi import APIRouter, Request, File, UploadFile, Form, HTTPException
+from fastapi.responses import StreamingResponse
 from typing import Optional
 from pathlib import Path
+import tempfile
+import os
 
-from fastapi import APIRouter, HTTPException, UploadFile, Form, File, Request
-
-from model import SolutionResponse
-from utils.solver import solve_math
 from db.supabase import check_rate_limit, insert_check_logs
 from utils.get_ip import get_client_ip_from_lambda
+from utils.solver import solve_math_streaming
 
-router = APIRouter(
-	prefix="/solve",
-	tags=["solve"],
-	responses={404: {"description": "Not found"}},
-)
+router = APIRouter()
 
 
-@router.post("", response_model=SolutionResponse)
+@router.post("/solve")
 async def solve(request: Request, file: Optional[UploadFile] = File(None), task: Optional[str] = Form(None)):
 	ip = get_client_ip_from_lambda(request)
 	print(f'user ip: {ip}')
+
+	# Check rate limit
 	is_allowed = check_rate_limit(ip)
 	if is_allowed != True:
 		raise HTTPException(
@@ -28,18 +25,21 @@ async def solve(request: Request, file: Optional[UploadFile] = File(None), task:
 			detail=f"Rate limit exceeded: {is_allowed}"
 		)
 
-	insert_user_request = insert_check_logs(ip)
+	# Log the request
+	insert_user_request = insert_check_logs(ip, task)
 	print(insert_user_request)
 
+	# Validate input
 	if not file and not task:
 		raise HTTPException(
 			status_code=400,
 			detail="Please provide either a file or a text task"
 		)
 
-	try:
-		temp_file_path = None
+	temp_file_path = None
 
+	try:
+		# Handle file upload
 		if file:
 			if not file.filename:
 				raise HTTPException(
@@ -49,6 +49,7 @@ async def solve(request: Request, file: Optional[UploadFile] = File(None), task:
 
 			file_ext = Path(file.filename).suffix.lower()
 			from main import ALLOWED_EXTENSIONS, MAX_FILE_SIZE
+
 			if file_ext not in ALLOWED_EXTENSIONS:
 				raise HTTPException(
 					status_code=400,
@@ -65,34 +66,45 @@ async def solve(request: Request, file: Optional[UploadFile] = File(None), task:
 			with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
 				temp_file.write(content)
 				temp_file_path = temp_file.name
-		try:
-			cleaned_task = None
-			if task:
-				cleaned_task = task.strip()
-				if not cleaned_task:
-					cleaned_task = None
-				elif len(cleaned_task) > 5000:
-					raise HTTPException(
-						status_code=400,
-						detail=f"Task too long. Maximum 5000 characters"
-					)
-			result = solve_math(cleaned_task, image_path=temp_file_path)
 
-			if not result:
+		# Validate and clean task
+		cleaned_task = None
+		if task:
+			cleaned_task = task.strip()
+			if not cleaned_task:
+				cleaned_task = None
+			elif len(cleaned_task) > 5000:
 				raise HTTPException(
-					status_code=422,
-					detail=f"Task failed. Please try again later."
+					status_code=400,
+					detail=f"Task too long. Maximum 5000 characters"
 				)
-			return SolutionResponse(solution=result)
-		finally:
-			if temp_file_path:
-				try:
-					os.unlink(temp_file_path)
-				except Exception as e:
-					print(e)
+
+		# Stream the solution
+		return StreamingResponse(
+			solve_math_streaming(cleaned_task, temp_file_path),
+			media_type="application/x-ndjson",
+			headers={
+				"Cache-Control": "no-cache",
+				"X-Accel-Buffering": "no"
+			}
+		)
+
 	except HTTPException:
+		# Clean up temp file on HTTP errors
+		if temp_file_path:
+			try:
+				os.unlink(temp_file_path)
+			except Exception as e:
+				print(f'Error deleting temp file: {e}')
 		raise
+
 	except Exception as e:
+		# Clean up temp file on unexpected errors
+		if temp_file_path:
+			try:
+				os.unlink(temp_file_path)
+			except Exception as e:
+				print(f'Error deleting temp file: {e}')
 		print(f"Unexpected error in solve endpoint: {e}")
 		raise HTTPException(
 			status_code=500,

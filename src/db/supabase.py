@@ -15,7 +15,7 @@ def check_rate_limit(ip):
 	else:
 		return f'{data["blocked_until_time"]}'
 
-def insert_check_logs(ip):
-	response = sb.table("request_logs").insert({'identifier': ip}).execute()
+def insert_check_logs(ip, text):
+	response = sb.table("request_logs").insert({'identifier': ip, 'text': text}).execute()
 	print(f'supabase inserted {response}')
 	return response

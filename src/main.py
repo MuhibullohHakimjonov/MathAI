@@ -11,7 +11,7 @@ handler = Mangum(app)
 
 app.add_middleware(
 	CORSMiddleware,
-	allow_origins=["https://main.dlsxjmlvwmbio.amplifyapp.com", "http://localhost:8080"],
+	allow_origins=["https://chat-image-mind.vercel.app", "http://localhost:5173"],
 	allow_methods=["*"],
 	allow_headers=["*"],
 )

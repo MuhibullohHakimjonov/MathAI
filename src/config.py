@@ -14,6 +14,6 @@ OLLAMA_URL = "https://ollama.com/api/chat"
 OLLAMA_MODEL = "kimi-k2-thinking:cloud"
 
 
-SUPABASE_URL='https://wiwbbybftgvgdgrmfwby.supabase.co'
+SUPABASE_URL= os.getenv('SUPABASE_URL')
 SUPABASE_ANON_KEY='sb_publishable_Vz-BAaULEiSajh5A21b8IA_aCycdUP_'
-SUPABASE_SECRET_KEY='sb_secret_aWbYgo_agamQ6Jsj3vyxcg_pJG9JnOX'
+SUPABASE_SECRET_KEY= os.getenv('SUPABASE_SECRET_KEY')
